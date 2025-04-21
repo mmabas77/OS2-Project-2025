@@ -13,7 +13,7 @@ You must implement the following endpoints:
 **Request:**
 
 ```bash
-curl -X POST http://localhost:3000/todos \
+curl -X POST http://127.0.0.1:3000/todos \
   -H "Content-Type: application/json" \
   -d '{"task": "Finish assignment"}'
 ```
@@ -35,7 +35,7 @@ curl -X POST http://localhost:3000/todos \
 **Request:**
 
 ```bash
-curl http://localhost:3000/todos
+curl http://127.0.0.1:3000/todos
 ```
 
 **Response:**
@@ -62,7 +62,7 @@ curl http://localhost:3000/todos
 **Request:**
 
 ```bash
-curl -X PUT http://localhost:3000/todos/661fe0dbcf1aef8a5b5e0a1a \
+curl -X PUT http://127.0.0.1:3000/todos/661fe0dbcf1aef8a5b5e0a1a \
   -H "Content-Type: application/json" \
   -d '{"done": true}'
 ```
@@ -84,7 +84,7 @@ curl -X PUT http://localhost:3000/todos/661fe0dbcf1aef8a5b5e0a1a \
 **Request:**
 
 ```bash
-curl -X DELETE http://localhost:3000/todos/661fe0dbcf1aef8a5b5e0a1a
+curl -X DELETE http://127.0.0.1:3070/todos/661fe0dbcf1aef8a5b5e0a1a
 ```
 
 **Response:**
@@ -108,17 +108,22 @@ curl -X DELETE http://localhost:3000/todos/661fe0dbcf1aef8a5b5e0a1a
 
 ## 🐳 Docker Instructions
 
+You must create custom network to run it locally
+```bash
+docker network create my-network
+```
+
 To run Mongo locally:
 
 ```bash
-docker run -d --name mongo -p 27017:27017 mongo
+docker run -d --name mongo --network my-network -p 27017:27017 mongo
 ```
 
 Then, build and run your app:
 
 ```bash
 docker build -t todo-app .
-docker run -p 3000:3000 --network="host" todo-app
+docker run -d -p 3070:3000 --name todo-app --network my-network todo-app
 ```
 
 ---

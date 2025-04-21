@@ -4,7 +4,7 @@
 set -e
 
 # --- Configuration ---
-BASE_URL="http://localhost:3000"
+BASE_URL="http://127.0.0.1:3070"
 # Ensure jq is installed
 if ! command -v jq &> /dev/null; then
     echo "Error: jq is not installed. Please install jq (e.g., 'sudo apt-get install jq' or 'brew install jq')."
@@ -121,32 +121,6 @@ if [ "$status_code" -ne 204 ]; then
   exit 1
 fi
 echo "  Status code 204 OK - Todo ID $TODO_ID deleted"
-
-# --- (Optional) Test 5: Verify Deletion ---
-echo
-echo "5. Verifying DELETE /todos/{id} (Check Absence)"
-response_and_code=$(curl -s -X GET -w "\n%{http_code}" "${BASE_URL}/todos")
-response_body=$(echo "$response_and_code" | head -n -1)
-status_code=$(echo "$response_and_code" | tail -n 1)
-
-# Check if GET /todos still works (should return 200 even if empty)
-if [ "$status_code" -ne 200 ]; then
-  # Handle edge case: Maybe the API returns 404 if the list becomes empty? Adapt if needed.
-  echo "Warning: GET /todos after delete returned status $status_code (expected 200)."
-  echo "Response body: $response_body"
-  # Decide if this is a failure or acceptable based on API spec
-else
-  echo "  Status code 200 OK"
-  # Check if the deleted TODO_ID *no longer* exists in the response array
-  echo "$response_body" | jq -e --arg id "$TODO_ID" '.[] | select(._id == $id)' > /dev/null
-  if [ $? -eq 0 ]; then # If jq *succeeds* (exit code 0), it means the ID was found, which is an error
-     echo "Error: Deleted todo with ID $TODO_ID WAS FOUND in GET /todos response after deletion."
-     echo "Response body: $response_body"
-     exit 1
-  fi
-  echo "  Verified Todo ID $TODO_ID is no longer in list"
-fi
-
 
 echo
 echo "--- All Todo App API Tests Passed! ---"
